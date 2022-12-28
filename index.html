@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="content">
+        <div class="first_row">
+          <div class="device_number">
+            <div class="device_number_left_column">
+              <div class="input_label">Номер Устройства</div>
+              <input placeholder="set nubmer of device" type="text" />
+            </div>
+            <div class="device_number_right_column">
+              <button class="set_device_number_button" type="text" id="set_device_number_button">
+                Задать
+              </button>
+            </div>
+          </div>
+          <div class="network_status">Наличие связи: Нет</div>
+        </div>
+        <div class="second_row">
+          <div class="second_row_left_column">
+            <div class="second_row_header">Запись Регистра</div>
+            <div class="second_row_left_column_register_number">
+              <input type="text" id="input_register_number" />
+              <span class="second_row_left_column_text_label">Номер Регистра</span>
+            </div>
+            <div class="second_row_left_column_value">
+              <input type="text" placeholder="0-65585" id="input_register_number_value" />
+              <span class="second_row_left_column_text_label" style="margin-left: 8px"
+                >Значение</span
+              >
+            </div>
+            <div>
+              <button class="set_record_button" onclick="onSetRecordHandler()">Запись</button>
+            </div>
+            <div class="second_row_left_column_result">
+              <div>Результат : Нет</div>
+              <div>Записан знач : 0</div>
+            </div>
+          </div>
+          <div class="verticalDevider"></div>
+          <div class="second_row_right_column">
+            <div class="second_row_header">Чтение Регистров</div>
+
+            <div class="second_row_right_column_start_number">
+              <input type="text" placeholder="0-65535" id="start_number_input" />
+              <span class="second_row_left_column_text_label">Стартовый номер</span>
+            </div>
+
+            <div class="second_row_right_column_ammount">
+              <input type="text" placeholder="1-100" id="start_number_input_ammount" />
+              <span class="second_row_left_column_text_label">Количество</span>
+            </div>
+            <div>
+              <button class="get_records_button" onclick="onGetRecordsHandler()">Чтение</button>
+            </div>
+            <div class="second_row_header">Результат Чтения :</div>
+            <div class="table_header">
+              <div class="table_header_cell"># Регистра</div>
+              <div class="table_header_cell">Значение</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const endPoints = {
+        setRecord: "https://google.com",
+        getRecords: "https://google.com"
+      };
+      function onSetRecordHandler() {
+        const registerNumber = document.getElementById("input_register_number").value;
+        const value = document.getElementById("input_register_number_value").value;
+        const setRecordEndPointUrl = new URL(endPoints.setRecord);
+        setRecordEndPointUrl.searchParams.append("registerNumber", registerNumber);
+        setRecordEndPointUrl.searchParams.append("value", value);
+        console.log(setRecordEndPointUrl);
+        fetch(setRecordEndPointUrl)
+          .then((response) => response.json())
+          .then((data) => console.log(data));
+      }
+      function onGetRecordsHandler() {
+        const startNumber = document.getElementById("start_number_input").value;
+        const ammount = document.getElementById("start_number_input_ammount").value;
+
+        const getRecordsEndpointUrl = new URL(endPoints.getRecords);
+        getRecordsEndpointUrl.searchParams.append("startNumber", startNumber);
+        getRecordsEndpointUrl.searchParams.append("ammount", ammount);
+        console.log(getRecordsEndpointUrl);
+        fetch(getRecordsEndpointUrl)
+          .then((response) => response.json())
+          .then((data) => console.log(data));
+      }
+    </script>
+  </body>
+</html>
