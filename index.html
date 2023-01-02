@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta http-equiv="Content-type" content="text/html; charset=Utf8" />
+    <meta http-equiv="Content-language" content="ru-RU" />
     <link rel="stylesheet" href="styles.css" />
   </head>
+
   <body>
     <div class="container">
       <div class="content">
         <div class="first_row">
           <div class="device_number">
             <div class="device_number_left_column">
-              <div class="input_label">Номер Устройства</div>
-              <input placeholder="set nubmer of device" type="text" />
+              <div class="input_label" style="margin-bottom: 3px">Номер Устройства</div>
+              <input
+                class="input_value"
+                placeholder="set nubmer of device"
+                type="text"
+                id="deviceNumberInput"
+              />
             </div>
             <div class="device_number_right_column">
               <button class="set_device_number_button" type="text" id="set_device_number_button">
@@ -18,27 +26,30 @@
               </button>
             </div>
           </div>
-          <div class="network_status">Наличие связи: Нет</div>
+          <div class="label_net" id="connectionStatus">Есть связь</div>
         </div>
         <div class="second_row">
           <div class="second_row_left_column">
             <div class="second_row_header">Запись Регистра</div>
             <div class="second_row_left_column_register_number">
-              <input type="text" id="input_register_number" />
+              <input type="number" class="input_value" id="input_register_number" />
               <span class="second_row_left_column_text_label">Номер Регистра</span>
             </div>
             <div class="second_row_left_column_value">
-              <input type="text" placeholder="0-65585" id="input_register_number_value" />
-              <span class="second_row_left_column_text_label" style="margin-left: 8px"
-                >Значение</span
-              >
+              <input
+                type="number"
+                class="input_value"
+                placeholder="0-65585"
+                id="input_register_number_value"
+              />
+              <span class="second_row_left_column_text_label">Значение</span>
             </div>
             <div>
               <button class="set_record_button" onclick="onSetRecordHandler()">Запись</button>
             </div>
             <div class="second_row_left_column_result">
-              <div>Результат : Нет</div>
-              <div>Записан знач : 0</div>
+              <div class="label_operation_result" id="setRecordResultField">Результат : Нет</div>
+              <div class="label_operation_result">Записан знач : 0</div>
             </div>
           </div>
           <div class="verticalDevider"></div>
@@ -46,20 +57,30 @@
             <div class="second_row_header">Чтение Регистров</div>
 
             <div class="second_row_right_column_start_number">
-              <input type="text" placeholder="0-65535" id="start_number_input" />
+              <input
+                type="number"
+                class="input_value"
+                placeholder="0-65535"
+                id="start_number_input"
+              />
               <span class="second_row_left_column_text_label">Стартовый номер</span>
             </div>
 
             <div class="second_row_right_column_ammount">
-              <input type="text" placeholder="1-100" id="start_number_input_ammount" />
+              <input
+                type="number"
+                class="input_value"
+                placeholder="1-100"
+                id="start_number_input_ammount"
+              />
               <span class="second_row_left_column_text_label">Количество</span>
             </div>
             <div>
-              <button class="get_records_button" onclick="onGetRecordsHandler()">Чтение</button>
+              <button class="button_style" onclick="onGetRecordsHandler()">Чтение</button>
             </div>
-            <div class="second_row_header">Результат Чтения :</div>
-            <div class="table_header">
-              <div class="table_header_cell"># Регистра</div>
+            <div class="table_header">Полученные регистры</div>
+            <div class="table_captions">
+              <div class="table_header_cell">№ регистра</div>
               <div class="table_header_cell">Значение</div>
             </div>
           </div>
@@ -68,32 +89,111 @@
     </div>
 
     <script>
+      //constants
+      const errorMessage =
+        "Ошибка. Введите валидный номер регистра и его значение в диапазоне 0- 65535";
+      const START_RANGE = 0;
+      const END_RANGE = 65535;
+
       const endPoints = {
-        setRecord: "https://google.com",
-        getRecords: "https://google.com"
+        setRecord: "http://localhost:8080/write",
+        getRecords: "http://localhost:8080/read",
+        checkConnection: "http://localhost:8080/connectionStatus"
       };
+
+      // interval http request to check conntection
+      checkConnection();
+      //set device number handler START
+      const input = document.getElementById("deviceNumberInput");
+      input.value = localStorage.getItem("key"); // get and assign the value outside
+      input.onchange = function () {
+        const key = input.value;
+        localStorage.setItem("key", key);
+      };
+      //set device number handler END
+
+      //onclick Handlers
       function onSetRecordHandler() {
+        //*get user input
         const registerNumber = document.getElementById("input_register_number").value;
         const value = document.getElementById("input_register_number_value").value;
-        const setRecordEndPointUrl = new URL(endPoints.setRecord);
-        setRecordEndPointUrl.searchParams.append("registerNumber", registerNumber);
-        setRecordEndPointUrl.searchParams.append("value", value);
-        console.log(setRecordEndPointUrl);
-        fetch(setRecordEndPointUrl)
-          .then((response) => response.json())
-          .then((data) => console.log(data));
+        //validate if registerNuber and its range is inbetween 0 and 65535
+        if (
+          isInputValueInRangeValid(registerNumber, START_RANGE, END_RANGE) &&
+          isInputValueInRangeValid(value, START_RANGE, END_RANGE)
+        ) {
+          //*set url for requetst
+          const setRecordEndPointUrl = new URL(endPoints.setRecord);
+          setRecordEndPointUrl.searchParams.append("registerNumber", registerNumber);
+          setRecordEndPointUrl.searchParams.append("value", value);
+          //*send http request
+          fetch(setRecordEndPointUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              const resultHtmlNode = document.getElementById("setRecordResultField");
+              resultHtmlNode.innerHTML = "Результат: Успешно Записано";
+            })
+            .catch((error) => {
+              const resultHtmlNode = document.getElementById("setRecordResultField");
+              resultHtmlNode.innerHTML = "Результат: Ошибка Записи";
+            });
+        } else {
+          alert(errorMessage);
+          return;
+        }
       }
+
       function onGetRecordsHandler() {
         const startNumber = document.getElementById("start_number_input").value;
         const ammount = document.getElementById("start_number_input_ammount").value;
+        if (
+          isInputValueInRangeValid(startNumber, START_RANGE, END_RANGE) &&
+          isInputValueInRangeValid(ammount, START_RANGE, END_RANGE)
+        ) {
+          //*set url for requetst
+          const getRecordsEndpointUrl = new URL(endPoints.getRecords);
+          getRecordsEndpointUrl.searchParams.append("startNumber", startNumber);
+          getRecordsEndpointUrl.searchParams.append("ammount", ammount);
+          //*send http request
+          fetch(getRecordsEndpointUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              console.log(data);
+              alert("Ответ получен - сервер работает - нужно доделать заполнение таблицы данными");
+            })
+            .catch((error) => {
+              alert("Ошибка сетевого запроса", error);
+            });
+        } else {
+          alert(errorMessage);
+        }
+      }
 
-        const getRecordsEndpointUrl = new URL(endPoints.getRecords);
-        getRecordsEndpointUrl.searchParams.append("startNumber", startNumber);
-        getRecordsEndpointUrl.searchParams.append("ammount", ammount);
-        console.log(getRecordsEndpointUrl);
-        fetch(getRecordsEndpointUrl)
-          .then((response) => response.json())
-          .then((data) => console.log(data));
+      function isInputValueInRangeValid(value, startRange, endRange) {
+        return value >= startRange && value <= endRange;
+      }
+      function checkConnection() {
+        setInterval(() => {
+          const statusHtmlNode = document.getElementById("connectionStatus");
+          const result = fetch(new URL(endPoints.checkConnection))
+            .then((response) => {
+              //*there is answer
+              return response.json();
+            })
+            .then((data) => {
+              if (data.isConnected) {
+                statusHtmlNode.innerHTML = "Есть Связь";
+                statusHtmlNode.classList = "laber_net";
+              } else {
+                statusHtmlNode.innerHTML = "Нет Связи";
+                statusHtmlNode.classList = "laber_net_error";
+              }
+            })
+            .catch((error) => {
+              statusHtmlNode.innerHTML = "Нет Связи";
+              statusHtmlNode.classList = "laber_net_error";
+            });
+        }, 10000);
       }
     </script>
   </body>

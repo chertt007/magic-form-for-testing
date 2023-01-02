@@ -9,7 +9,9 @@
   align-items: center;
   width: 100%;
   height: 100vh;
+  font-family: Arial;
 }
+
 .content {
   display: flex;
   flex-direction: column;
@@ -17,43 +19,125 @@
   padding: 10px;
   width: 100%;
   height: 100%;
-  background: lightgray;
+  background: linear-gradient(
+    90deg,
+    #4682b4 0%,
+    #6eaadc 25%,
+    #4682b4 50%,
+    #6eaadc 75%,
+    #4682b4 100%
+  );
   border-radius: 10px;
   margin: 10px;
 }
 .first_row {
   display: flex;
-  width: 100%;
+  align-items: center;
+  max-width: 100%;
   height: 100px;
   justify-content: space-between;
-  border-bottom: 1px solid black;
+  padding: 10px;
+  background: linear-gradient(0deg, #6eaadc 0%, #2d699b 100%);
+  border-bottom: 1px solid white;
 }
 .device_number {
   display: flex;
+  align-items: center;
 }
 .device_number_left_column {
   display: flex;
   flex-direction: column;
 }
+
+.input_label {
+  color: white;
+}
+
+.label_net {
+  padding: 10px;
+  color: green;
+  background: radial-gradient(#90ee90, #0f450f);
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #dddddd;
+  border-style: solid;
+}
+.laber_net_error {
+  padding: 10px;
+  color: red;
+  background: radial-gradient(#90ee90, #0f450f);
+  border-radius: 10px;
+  border-width: 1px;
+  border-color: #dddddd;
+  border-style: solid;
+}
+.input_value {
+  color: #246092;
+  height: 25px;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 2px;
+}
+
+.button_style {
+  width: 80px;
+  height: 30px;
+  background: radial-gradient(#6eaadc, #246092);
+  color: white;
+  border-radius: 5px;
+  border-color: #dddddd;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.button_style:hover {
+  background: radial-gradient(#90ee90, #0f450f);
+}
+
 .set_device_number_button {
   margin-top: 18px;
   margin-left: 10px;
-  width: 70px;
+  width: 80px;
+  height: 30px;
+  background: radial-gradient(#6eaadc, #246092);
+  color: white;
+  border-radius: 5px;
+  border-color: #dddddd;
+  cursor: pointer;
 }
+.set_device_number_button:hover {
+  background: radial-gradient(#ce3e3e, #246092);
+}
+
+.set_record_button {
+  margin-left: 10px;
+  width: 80px;
+  height: 30px;
+  background: radial-gradient(#6eaadc, #246092);
+  color: white;
+  border-radius: 5px;
+  border-color: #dddddd;
+  cursor: pointer;
+}
+.set_record_button:hover {
+  background: radial-gradient(#ce3e3e, #246092);
+}
+
 .second_row {
   display: flex;
   width: 100%;
   height: 100%;
   justify-content: space-between;
+  background: #86b5dc;
 }
 .verticalDevider {
   height: 100%;
   width: 1px;
-  background-color: black;
+  background-color: #dddddd;
 }
 .second_row_left_column {
   display: flex;
-  width: 40%;
+  width: 50%;
   flex-direction: column;
 }
 
@@ -61,42 +145,85 @@
   display: flex;
   width: 100%;
   justify-content: center;
-  font-size: 30px;
-  margin-bottom: 30px;
+  font-size: 20px;
+  color: white;
+  margin-bottom: 10px;
+  padding: 5px;
+  background: steelblue;
 }
+.table_header {
+  display: flex;
+  max-width: 100%;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+  padding: 3px;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 2px;
+  background: steelblue;
+}
+
 .second_row_left_column_value {
   margin: 10px 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: inline;
 }
 .second_row_left_column_register_number {
   display: flex;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: inline;
 }
 
 .second_row_left_column_text_label {
   margin-left: 10px;
+  color: white;
+  vertical-align: middle;
 }
+.label_operation_result {
+  font-size: 11px;
+  color: white;
+}
+
 .second_row_left_column_result {
   display: flex;
   flex-direction: column;
   margin-top: 30px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 .second_row_right_column {
   display: flex;
-  width: 40%;
+  width: 50%;
   flex-direction: column;
 }
 .second_row_right_column_start_number {
   display: flex;
+  display: inline;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 .second_row_right_column_ammount {
   margin: 10px 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: inline;
 }
-.table_header {
+.table_captions {
   display: flex;
   justify-content: space-between;
+  color: white;
+  background: steelblue;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 .table_header_cell {
   display: flex;
-  padding: 0 10px;
   width: 100%;
-  border: 1px solid black;
+  border: 1px solid #dddddd;
+  font-size: 14px;
+  padding: 3px;
+  justify-content: center;
 }
