@@ -26,7 +26,7 @@
               </button>
             </div>
           </div>
-          <div class="label_net" id="connectionStatus">Есть связь</div>
+          <div class="label_net" id="connectionStatus">Установка Связи</div>
         </div>
         <div class="second_row">
           <div class="second_row_left_column">
@@ -49,7 +49,6 @@
             </div>
             <div class="second_row_left_column_result">
               <div class="label_operation_result" id="setRecordResultField">Результат : Нет</div>
-              <div class="label_operation_result">Записан знач : 0</div>
             </div>
           </div>
           <div class="verticalDevider"></div>
@@ -92,17 +91,28 @@
       //constants
       const errorMessage =
         "Ошибка. Введите валидный номер регистра и его значение в диапазоне 0- 65535";
+      const noConnectionMassage = "Связь не установлена";
       const START_RANGE = 0;
       const END_RANGE = 65535;
-
+      const CHECK_CONNECTION_INTERVAL = 10000;
+      const CONNECTION_STATUSES = {
+        initial: "Установка Связи",
+        connected: "Есть Связь",
+        disconnected: "Нет Связи",
+        error: "Внутр. Ошибка"
+      };
       const endPoints = {
         setRecord: "http://localhost:8080/write",
         getRecords: "http://localhost:8080/read",
         checkConnection: "http://localhost:8080/connectionStatus"
       };
 
-      // interval http request to check conntection
+      // initial http actions
       checkConnection();
+
+      setInterval(() => {
+        checkConnection();
+      }, CHECK_CONNECTION_INTERVAL);
       //set device number handler START
       const input = document.getElementById("deviceNumberInput");
       input.value = localStorage.getItem("key"); // get and assign the value outside
@@ -114,6 +124,12 @@
 
       //onclick Handlers
       function onSetRecordHandler() {
+        //*check if connection exist - if not do nothing
+        if (!isConnected()) {
+          alert(noConnectionMassage);
+          return;
+        }
+
         //*get user input
         const registerNumber = document.getElementById("input_register_number").value;
         const value = document.getElementById("input_register_number_value").value;
@@ -131,7 +147,7 @@
             .then((response) => response.json())
             .then((data) => {
               const resultHtmlNode = document.getElementById("setRecordResultField");
-              resultHtmlNode.innerHTML = "Результат: Успешно Записано";
+              resultHtmlNode.innerHTML = "Результат: Успешно Записан";
             })
             .catch((error) => {
               const resultHtmlNode = document.getElementById("setRecordResultField");
@@ -144,6 +160,11 @@
       }
 
       function onGetRecordsHandler() {
+        const statusHtmlNode = document.getElementById("connectionStatus");
+        if (!isConnected()) {
+          alert(noConnectionMassage);
+          return;
+        }
         const startNumber = document.getElementById("start_number_input").value;
         const ammount = document.getElementById("start_number_input_ammount").value;
         if (
@@ -170,30 +191,42 @@
       }
 
       function isInputValueInRangeValid(value, startRange, endRange) {
+        if (!value) {
+          return false;
+        }
         return value >= startRange && value <= endRange;
       }
       function checkConnection() {
-        setInterval(() => {
-          const statusHtmlNode = document.getElementById("connectionStatus");
-          const result = fetch(new URL(endPoints.checkConnection))
-            .then((response) => {
-              //*there is answer
-              return response.json();
-            })
-            .then((data) => {
-              if (data.isConnected) {
-                statusHtmlNode.innerHTML = "Есть Связь";
-                statusHtmlNode.classList = "laber_net";
-              } else {
-                statusHtmlNode.innerHTML = "Нет Связи";
-                statusHtmlNode.classList = "laber_net_error";
-              }
-            })
-            .catch((error) => {
+        //device number if exist
+        const deviceNumber = localStorage.getItem("key");
+        const statusHtmlNode = document.getElementById("connectionStatus");
+
+        const ulr = new URL(endPoints.checkConnection);
+        ulr.searchParams.append("deviceNumber", deviceNumber);
+
+        const result = fetch(ulr)
+          .then((response) => {
+            //*there is answer
+            return response.json();
+          })
+          .then((data) => {
+            if (data.isConnected) {
+              statusHtmlNode.innerHTML = "Есть Связь";
+              statusHtmlNode.classList = "laber_net";
+            } else {
               statusHtmlNode.innerHTML = "Нет Связи";
               statusHtmlNode.classList = "laber_net_error";
-            });
-        }, 10000);
+            }
+          })
+          .catch((error) => {
+            statusHtmlNode.innerHTML = "Внутр. Ошибка";
+            statusHtmlNode.classList = "laber_net_error";
+          });
+      }
+      function isConnected() {
+        //*check if connection exist - if not do nothing
+        const statusHtmlNode = document.getElementById("connectionStatus");
+        return statusHtmlNode.innerHTML === CONNECTION_STATUSES.connected;
       }
     </script>
   </body>
